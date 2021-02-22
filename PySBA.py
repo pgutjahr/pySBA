@@ -134,7 +134,7 @@ class PySBA:
         numPoints = self.points3D.shape[0]
 
         x0 = np.hstack((self.cameraArray.ravel(), self.points3D.ravel()))
-        f0 = self.fun(x0, numCameras, numPoints, self.cameraindices, self.point2DIndices, self.points2D)
+        f0 = self.fun(x0, numCameras, numPoints, self.cameraIndices, self.point2DIndices, self.points2D)
 
         A = self.bundle_adjustment_sparsity(numCameras, numPoints, self.cameraIndices, self.point2DIndices)
 
