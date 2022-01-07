@@ -29,6 +29,7 @@ import numpy as np
 from scipy.sparse import lil_matrix
 from scipy.optimize import least_squares
 
+
 class PySBA:
     """Python class for Simple Bundle Adjustment"""
 
@@ -48,7 +49,7 @@ class PySBA:
                     contains indices of cameras (from 0 to n_cameras - 1) involved in each observation.
 
             point_ind with shape (n_observations,)
-                    contatins indices of points (from 0 to n_points - 1) involved in each observation.
+                    contains indices of points (from 0 to n_points - 1) involved in each observation.
 
             points_2d with shape (n_observations, 2)
                     contains measured 2-D coordinates of points projected on images in each observations.
@@ -75,7 +76,6 @@ class PySBA:
 
         return cos_theta * points + sin_theta * np.cross(v, points) + dot * (1 - cos_theta) * v
 
-
     def project(self, points, cameraArray):
         """Convert 3-D points to 2-D by projecting onto images."""
         points_proj = self.rotate(points, cameraArray[:, :3])
@@ -88,7 +88,6 @@ class PySBA:
         r = 1 + k1 * n + k2 * n ** 2
         points_proj *= (r * f)[:, np.newaxis]
         return points_proj
-
 
     def fun(self, params, n_cameras, n_points, camera_indices, point_indices, points_2d):
         """Compute residuals.
@@ -116,7 +115,6 @@ class PySBA:
 
         return A
 
-
     def optimizedParams(self, params, n_cameras, n_points):
         """
         Retrieve camera parameters and 3-D coordinates.
@@ -126,7 +124,6 @@ class PySBA:
 
         return camera_params, points_3d
 
-
     def bundleAdjust(self):
         """ Returns the bundle adjusted parameters, in this case the optimized
          rotation and translation vectors. """
@@ -134,6 +131,8 @@ class PySBA:
         numPoints = self.points3D.shape[0]
 
         x0 = np.hstack((self.cameraArray.ravel(), self.points3D.ravel()))
+
+        # TODO: f0-value not used
         f0 = self.fun(x0, numCameras, numPoints, self.cameraIndices, self.point2DIndices, self.points2D)
 
         A = self.bundle_adjustment_sparsity(numCameras, numPoints, self.cameraIndices, self.point2DIndices)
@@ -141,11 +140,7 @@ class PySBA:
         res = least_squares(self.fun, x0, jac_sparsity=A, verbose=2, x_scale='jac', ftol=1e-4, method='trf',
                             args=(numCameras, numPoints, self.cameraIndices, self.point2DIndices, self.points2D))
 
+        # TODO: obsolete Arguments, what have they been used for?
         params = self.optimizedParams(res.x, numCameras, numPoints, self.cameraIndices, self.point2DIndices, self.points2D)
 
         return params
-
-
-
-
-
